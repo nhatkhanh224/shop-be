@@ -1,0 +1,12 @@
+const express = require('express');
+const AdminController = require('../app/controllers/AdminController');
+const CategoryController = require('../app/controllers/CategoryController');
+const router=express.Router();
+router.get('/',AdminController.index);
+router.get('/category',CategoryController.show);
+router.get('/category-add',CategoryController.add);
+router.post('/category-add',CategoryController.postCategory);
+router.get('/category-edit-:id',CategoryController.edit);
+router.post('/category-update/:id',CategoryController.updateCategory);
+router.post('/category-delete/:id',CategoryController.deleteCategory);
+module.exports = router;
