@@ -1,0 +1,129 @@
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>Product Data</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Product Data</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Product Data</h3>
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body">
+          <table id="example2" class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Thumbnai</th>
+                <th>Description</th>
+                <th>Created At</th>
+                <th>Options</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% categories.forEach(function (item,index) { %>
+              <tr>
+                <td><%= index+1 %></td>
+                <td><%= item.name %></td>
+                <td><img src="<%= item.thumbnail %>" alt="" width="200"></td>
+                <td><%= item.description %></td>
+                <td><%= item.created_at %></td>
+                <td>
+                  <a href="/product-edit-<%= item.id %>">Edit</a>
+                  <a
+                    href="#"
+                    data-toggle="modal"
+                    data-target="#deleteProductModal"
+                    data-id="<%= item.id %>"
+                    >Delete</a
+                  >
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Thumbnai</th>
+                <th>Description</th>
+                <th>Created At</th>
+                <th>Options</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+    </div>
+    <!-- /.col -->
+  </div>
+  <!-- /.row -->
+</section>
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="deleteProductModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Delete product ?</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">Are you sure about to delete this product ?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+        <button type="button" class="btn btn-primary" id="btn-delete-product">
+          Yes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<form method="POST" name="delete-product-form"></form>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let productId;
+    let deleteForm = document.forms["delete-product-form"];
+    $("#deleteProductModal").on("show.bs.modal", function (event) {
+      var button = $(event.relatedTarget);
+      productId = button.data("id"); //Get id
+    });
+    var btnDeleteProduct = document.getElementById("btn-delete-product");
+    btnDeleteProduct.onclick = function (event) {
+      deleteForm.action = "/product-delete/" + productId;
+      deleteForm.submit();
+    };
+  });
+</script>
