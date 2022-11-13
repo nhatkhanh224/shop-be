@@ -7,6 +7,8 @@ const router=express.Router();
 
 
 router.get('/',AdminController.index);
+router.get('/login',AdminController.login);
+router.post('/login',AdminController.postLogin);
 
 //Category
 router.get('/category',CategoryController.show);
