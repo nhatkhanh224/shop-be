@@ -1,7 +1,7 @@
-const Resize = require("../../root/Resize");
+// const Resize = require("../../root/Resize");
 const Product = require("../models/Product");
 const Category = require("../models/Category");
-const path = require('path');
+// const path = require('path');
 class ProductController {
   async show(req, res) {
     const categories = await Product.query()

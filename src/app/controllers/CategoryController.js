@@ -16,7 +16,7 @@ class CategoryController {
       await Category.query()
         .insert({
           name: req.body.name,
-          parent_id: req.body.parent_id,
+          // parent_id: req.body.parent_id,
           description: req.body.description,
         })
         .then(() => {
@@ -40,7 +40,7 @@ class CategoryController {
         .findById(category_id)
         .patch({
           name: req.body.name,
-          parent_id: req.body.parent_id,
+          // parent_id: req.body.parent_id,
           description: req.body.description,
         })
         .then(() => {
