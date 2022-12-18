@@ -2,6 +2,7 @@ const express = require('express');
 const AdminController = require('../app/controllers/AdminController');
 const CategoryController = require('../app/controllers/CategoryController');
 const ProductController = require('../app/controllers/ProductController');
+const WarehouseController = require('../app/controllers/WarehouseController');
 const upload = require('../app/middleware/uploadMiddleware');
 const router=express.Router();
 
@@ -25,4 +26,14 @@ router.post('/product-add',upload.single('thumbnail'),ProductController.postProd
 router.get('/product-edit-:id',ProductController.edit);
 router.post('/product-update/:id',ProductController.updateProduct);
 router.post('/product-delete/:id',ProductController.deleteProduct);
+
+//Warehouse
+router.get('/warehouse',WarehouseController.show);
+router.get('/warehouse-add',WarehouseController.add);
+router.post('/warehouse-add',WarehouseController.postWarehouse);
+router.get('/warehouse-edit-:id',WarehouseController.edit);
+router.post('/warehouse-update/:id',WarehouseController.updateWarehouse);
+router.post('/warehouse-delete/:id',WarehouseController.deleteWarehouse);
+router.get('/search-warehouse',WarehouseController.searchWarehouse);
+
 module.exports = router;

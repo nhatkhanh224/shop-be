@@ -1,0 +1,141 @@
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>Product Data</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Product Data</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Product Data</h3>
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body">
+          <table id="example2" class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Thumbnai</th>
+                <th>Size</th>
+                <th>Color</th>
+                <th>Quantity</th>
+                <th>Initial Cost</th>
+                <th>Created At</th>
+                <th>Options</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% warehouses.forEach(function (item,index) { %>
+              <tr>
+                <td><%= index+1 %></td>
+                <td><%= item.name %></td>
+                <td><%= item.code %></td>
+                <td><img src="<%= item.thumbnail %>" alt="" width="200"></td>
+                <td><%= item.size %></td>
+                <td><%= item.color %></td>
+                <td><%= item.quantity %></td>
+                <td><%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 9}).format(item.price) %></td>
+                <td><%= item.created_at %></td>
+                <td>
+                  <a href="/warehouse-edit-<%= item.id %>">Edit</a>
+                  <a
+                    href="#"
+                    data-toggle="modal"
+                    data-target="#deleteWarehouseModal"
+                    data-id="<%= item.id %>"
+                    >Delete</a
+                  >
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Thumbnai</th>
+                <th>Size</th>
+                <th>Color</th>
+                <th>Quantity</th>
+                <th>Initial Cost</th>
+                <th>Created At</th>
+                <th>Options</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+    </div>
+    <!-- /.col -->
+  </div>
+  <!-- /.row -->
+</section>
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="deleteWarehouseModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Delete warehouse ?</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">Are you sure about to delete this warehouse ?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+        <button type="button" class="btn btn-primary" id="btn-delete-warehouse">
+          Yes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<form method="POST" name="delete-warehouse-form"></form>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let warehouseId;
+    let deleteForm = document.forms["delete-warehouse-form"];
+    $("#deleteWarehouseModal").on("show.bs.modal", function (event) {
+      var button = $(event.relatedTarget);
+      warehouseId = button.data("id"); //Get id
+    });
+    var btnDeleteWarehouse = document.getElementById("btn-delete-warehouse");
+    btnDeleteWarehouse.onclick = function (event) {
+      deleteForm.action = "/warehouse-delete/" + warehouseId;
+      deleteForm.submit();
+    };
+  });
+</script>

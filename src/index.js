@@ -13,6 +13,7 @@ app.set('layout', 'layouts/layout');
 app.set('view engine', 'ejs');
 app.use(expressLayouts);
 app.use(express.static( path.join(__dirname, './public/admin')))
+app.use(express.static( path.join(__dirname, './public/images')))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
