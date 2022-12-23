@@ -3,12 +3,16 @@ const Category = require("../models/Category");
 const User = require("../models/User");
 const Cart = require("../models/Cart");
 const bcrypt = require("bcrypt");
+const ProductImage = require("../models/ProductImage");
+const Property = require("../models/Property");
 
 class APIController {
   async getAllCategory(req, res) {
+    const category_id = req.params.id;
     await Category.query()
       .select("*")
       .whereNull("deleted_at")
+      .where('parent_id',category_id)
       .then((category) => {
         res.status(200).json(category);
       });
@@ -23,20 +27,39 @@ class APIController {
   }
   async getProductByCategory(req, res) {
     const category_id = req.params.id;
-    await Product.query()
+    const subCategory = await Category.query().select('id').where('parent_id',category_id);
+    if (subCategory.length > 0) {
+      await Product.query()
+      .select("*")
+      .whereNull("deleted_at")
+      .whereIn("category_id", subCategory.map((item)=>item.id))
+      .then((product) => {
+        res.status(200).json(product);
+      });
+    } else {
+      await Product.query()
       .select("*")
       .whereNull("deleted_at")
       .where("category_id", category_id)
       .then((product) => {
         res.status(200).json(product);
       });
+    }
   }
   async getProductDetail(req, res) {
     const product_id = req.params.id;
     await Product.query()
       .findById(product_id)
       .whereNull("deleted_at")
-      .then((product) => {
+      .then(async (product) => {
+      const product_image = await ProductImage.query()
+        .where('product_id', product.id)
+        .whereNull('deleted_at');
+      const properties = await Property.query()
+        .where('product_id', product.id)
+        .whereNull('deleted_at');
+        product.subImages = product_image
+        product.properties= properties
         res.status(200).json(product);
       });
   }

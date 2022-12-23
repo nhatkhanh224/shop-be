@@ -96,6 +96,7 @@
                   class="form-control-file"
                   name="thumbnail"
                   id="exampleFormControlFile1"
+                  accept='image/*'
                 />
               </div>
               <!-- <div class="form-group">
@@ -116,22 +117,29 @@
                     type="text"
                     class="form-control"
                     id="exampleInputEmail1"
-                    name="property_name[]"
-                    placeholder="Enter property name"
+                    name="product_size[]"
+                    placeholder="Enter size"
                   />
                   <input
                     type="text"
                     class="form-control ml-3"
                     id="exampleInputEmail1"
-                    name="property_value[]"
-                    placeholder="Enter property value"
+                    name="product_color[]"
+                    placeholder="Enter color"
                   />
                   <input
                     type="text"
                     class="form-control ml-3"
                     id="exampleInputEmail1"
                     name="product_code[]"
-                    placeholder="Enter product code"
+                    placeholder="Enter code"
+                  />
+                  <input
+                    type="text"
+                    class="form-control ml-3"
+                    id="exampleInputEmail1"
+                    name="product_quantity[]"
+                    placeholder="Enter quantity"
                   />
                   <button type="button" class="btn btn-primary ml-1 add_button">Add</button>
                   <button type="button" class="btn btn-danger ml-1">Delete</button>
@@ -159,7 +167,7 @@
       var maxField = 10; //Input fields increment limitation
       var addButton = $('.add_button'); //Add button selector
       var wrapper = $('.field_wrapper'); //Input field wrapper
-      var fieldHTML = '<div class="mt-2"><div class="d-flex"> <input type="text" class="form-control" id="exampleInputEmail1" name="property_name[]" placeholder="Enter property name"/><input type="text" class="form-control ml-3" id="exampleInputEmail1" name="property_value[]" placeholder="Enter property value"/><input type="text" class="form-control ml-3" id="exampleInputEmail1" name="product_code[]" placeholder="Enter product code"/><button type="button" class="btn btn-primary ml-1 add_button">Add</button><button type="button" class="btn btn-danger ml-1 remove_button">Delete</button></div></div>'; //New input field html 
+      var fieldHTML = '<div class="mt-2"><div class="d-flex"> <input type="text" class="form-control" id="exampleInputEmail1" name="product_size[]" placeholder="Enter size"/><input type="text" class="form-control ml-3" id="exampleInputEmail1" name="product_color[]" placeholder="Enter color"/><input type="text" class="form-control ml-3" id="exampleInputEmail1" name="product_code[]" placeholder="Enter code"/><input type="text" class="form-control ml-3" id="exampleInputEmail1" name="product_quantity[]" placeholder="Enter quantity"/><button type="button" class="btn btn-primary ml-1 add_button">Add</button><button type="button" class="btn btn-danger ml-1 remove_button">Delete</button></div></div>'; //New input field html 
       var x = 1; //Initial field counter is 1
       
       //Once add button is clicked

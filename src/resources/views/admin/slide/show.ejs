@@ -2,12 +2,12 @@
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1>Product Data</h1>
+        <h1>Slide Data</h1>
       </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
           <li class="breadcrumb-item"><a href="#">Home</a></li>
-          <li class="breadcrumb-item active">Product Data</li>
+          <li class="breadcrumb-item active">Slide Data</li>
         </ol>
       </div>
     </div>
@@ -21,7 +21,7 @@
     <div class="col-12">
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Product Data</h3>
+          <h3 class="card-title">Slide Data</h3>
         </div>
         <!-- /.card-header -->
         <div class="card-body">
@@ -29,30 +29,24 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Name</th>
-                <th>Thumbnai</th>
-                <th>Description</th>
+                <th>Thumbnail</th>
                 <th>Created At</th>
                 <th>Options</th>
               </tr>
             </thead>
             <tbody>
-              <% categories.forEach(function (item,index) { %>
+              <% slides.forEach(function (item,index) { %>
               <tr>
                 <td><%= index+1 %></td>
-                <td><%= item.name %></td>
-                <td><img src="<%= item.thumbnail %>" alt="" width="200"></td>
-                <td><%= item.description %></td>
+                <td><img src="<%= item.thumbnail %>" alt="" width="200px"></td>
                 <td><%= item.created_at %></td>
                 <td>
-                  <a href="/sub-images-add-<%= item.id %>" class="btn btn-success">Add sub images</a>
-                  <a href="/product-edit-<%= item.id %>" class="btn btn-primary">Edit</a>
+                  <a href="/slide-edit-<%= item.id %>">Edit</a>
                   <a
                     href="#"
                     data-toggle="modal"
-                    data-target="#deleteProductModal"
+                    data-target="#deleteSlideModal"
                     data-id="<%= item.id %>"
-                    class="btn btn-warning"
                     >Delete</a
                   >
                 </td>
@@ -63,8 +57,6 @@
               <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Thumbnai</th>
-                <th>Description</th>
                 <th>Created At</th>
                 <th>Options</th>
               </tr>
@@ -82,7 +74,7 @@
 <!-- Modal -->
 <div
   class="modal fade"
-  id="deleteProductModal"
+  id="deleteSlideModal"
   tabindex="-1"
   role="dialog"
   aria-labelledby="exampleModalLabel"
@@ -91,7 +83,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Delete product ?</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Delete slide </h5>
         <button
           type="button"
           class="close"
@@ -101,30 +93,30 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">Are you sure about to delete this product ?</div>
+      <div class="modal-body">Are you sure about to delete this slide ?</div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary" id="btn-delete-product">
+        <button type="button" class="btn btn-primary" id="btn-delete-slide">
           Yes
         </button>
       </div>
     </div>
   </div>
 </div>
-<form method="POST" name="delete-product-form"></form>
+<form method="POST" name="delete-slide-form"></form>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    let productId;
-    let deleteForm = document.forms["delete-product-form"];
-    $("#deleteProductModal").on("show.bs.modal", function (event) {
+    let slideId;
+    let deleteForm = document.forms["delete-slide-form"];
+    $("#deleteSlideModal").on("show.bs.modal", function (event) {
       var button = $(event.relatedTarget);
-      productId = button.data("id"); //Get id
+      slideId = button.data("id"); //Get id
     });
-    var btnDeleteProduct = document.getElementById("btn-delete-product");
-    btnDeleteProduct.onclick = function (event) {
-      deleteForm.action = "/product-delete/" + productId;
+    var btnDeleteSlide = document.getElementById("btn-delete-slide");
+    btnDeleteSlide.onclick = function (event) {
+      deleteForm.action = "/slide-delete/" + slideId;
       deleteForm.submit();
     };
   });

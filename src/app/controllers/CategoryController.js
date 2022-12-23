@@ -8,15 +8,16 @@ class CategoryController {
       categories: categories,
     });
   }
-  add(req, res) {
-    res.render("admin/category/add", { layout: "layouts/admin" });
+  async add(req, res) {
+    const categories = await Category.query().select("*").where('parent_id',0).whereNull('deleted_at');
+    res.render("admin/category/add", { layout: "layouts/admin",categories: categories});
   }
   async postCategory(req, res) {
     try {
       await Category.query()
         .insert({
           name: req.body.name,
-          // parent_id: req.body.parent_id,
+          parent_id: req.body.parent_id,
           description: req.body.description,
         })
         .then(() => {

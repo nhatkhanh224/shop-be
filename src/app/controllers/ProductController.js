@@ -2,6 +2,7 @@
 const Product = require("../models/Product");
 const Category = require("../models/Category");
 const Property = require("../models/Property");
+const ProductImage = require("../models/ProductImage");
 const Resize = require('../../root/Resize');
 const path = require('path');
 class ProductController {
@@ -19,7 +20,6 @@ class ProductController {
     res.render("admin/product/add", { layout: "layouts/admin",categories: categories});
   }
   async postProduct(req, res) {
-    console.log(req.body);
     const imagePath = path.resolve('src/public/images');
     // call class Resize
     const fileUpload = new Resize(imagePath);
@@ -37,11 +37,12 @@ class ProductController {
           thumbnail: await fileUpload.save(req.file.buffer) 
           // thumbnail: req.body.thumbnail
         });
-      for (let i = 0; i < req.body.property_name.length; i++) {
+      for (let i = 0; i < req.body.product_size.length; i++) {
         let valueToSave = {
-          name: req.body.property_name[i],
-          value: req.body.property_value[i],
+          size: req.body.product_size[i],
+          color: req.body.product_color[i],
           code: req.body.product_code[i],
+          quantity:req.body.product_quantity[i],
           product_id:newProduct.id
         }
         const newProperty = await Property.query()
@@ -54,11 +55,13 @@ class ProductController {
   }
   async edit(req, res) {
     const categories = await Category.query().select("*").whereNull('deleted_at');
+    const subImages = await ProductImage.query().select('*').where('product_id',req.params.id).whereNull('deleted_at')
     const product = await Product.query().findById(req.params.id);
     res.render("admin/product/edit", {
       layout: "layouts/admin",
       categories: categories,
-      product:product
+      product:product,
+      subImages:subImages
     });
   }
   async updateProduct(req, res) {
