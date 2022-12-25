@@ -3,54 +3,70 @@ const Product = require("../models/Product");
 const Category = require("../models/Category");
 const Property = require("../models/Property");
 const ProductImage = require("../models/ProductImage");
-const Resize = require('../../root/Resize');
-const path = require('path');
+const Resize = require("../../root/Resize");
+const path = require("path");
 class ProductController {
   async show(req, res) {
     const categories = await Product.query()
       .select("*")
-      .whereNull("deleted_at");
+      .whereNull("deleted_at")
+      .orderBy("id","desc");
     res.render("admin/product/show", {
       layout: "layouts/admin",
       categories: categories,
     });
   }
   async add(req, res) {
-    const categories = await Category.query().select("*").whereNull('deleted_at');
-    res.render("admin/product/add", { layout: "layouts/admin",categories: categories});
+    const categories = await Category.query()
+      .select("*")
+      .where("parent_id", 0)
+      .whereNull("deleted_at")
+      .then(async (items) => {
+        for (let i = 0; i < items.length; i++) {
+          const element = items[i];
+          const subCategory = await Category.query()
+            .select("*")
+            .where("parent_id", element.id)
+            .whereNull("deleted_at");
+          items[i].subCategory = subCategory;
+        }
+        return items;
+      });
+    res.render("admin/product/add", {
+      layout: "layouts/admin",
+      categories: categories,
+    });
   }
   async postProduct(req, res) {
     const product_size = req.body.product_size[1].split(",");
     const product_color = req.body.product_color[1].split(",");
-    const imagePath = path.resolve('src/public/images');
+    const imagePath = path.resolve("src/public/images");
     // call class Resize
     const fileUpload = new Resize(imagePath);
     if (!req.file) {
       res.status(401).json({ error: "Please provide an image" });
     }
     try {
-      const newProduct = await Product.query()
-        .insert({
-          name: req.body.name,
-          category_id: req.body.category_id,
-          description: req.body.description,
-          price: req.body.price,
-          code: req.body.code,
-          thumbnail: await fileUpload.save(req.file.buffer) 
-          // thumbnail: req.body.thumbnail
-        });
+      const newProduct = await Product.query().insert({
+        name: req.body.name,
+        category_id: req.body.category_id,
+        description: req.body.description,
+        price: req.body.price,
+        code: req.body.code,
+        thumbnail: await fileUpload.save(req.file.buffer),
+        // thumbnail: req.body.thumbnail
+      });
       for (let i = 0; i < product_color.length; i++) {
         let color = product_color[i];
         for (let j = 0; j < product_size.length; j++) {
           let valueToSave = {
             size: product_size[j],
             color: color,
-            code: ((Math.random() + 1).toString(36).substring(7)).toUpperCase(),
-            quantity:req.body.product_quantity,
-            product_id:newProduct.id
-          }
-          const newProperty = await Property.query()
-        .insert(valueToSave);
+            code: (Math.random() + 1).toString(36).substring(7).toUpperCase(),
+            quantity: req.body.product_quantity,
+            product_id: newProduct.id,
+          };
+          const newProperty = await Property.query().insert(valueToSave);
         }
       }
       res.redirect("/product");
@@ -59,14 +75,19 @@ class ProductController {
     }
   }
   async edit(req, res) {
-    const categories = await Category.query().select("*").whereNull('deleted_at');
-    const subImages = await ProductImage.query().select('*').where('product_id',req.params.id).whereNull('deleted_at')
+    const categories = await Category.query()
+      .select("*")
+      .whereNull("deleted_at");
+    const subImages = await ProductImage.query()
+      .select("*")
+      .where("product_id", req.params.id)
+      .whereNull("deleted_at");
     const product = await Product.query().findById(req.params.id);
     res.render("admin/product/edit", {
       layout: "layouts/admin",
       categories: categories,
-      product:product,
-      subImages:subImages
+      product: product,
+      subImages: subImages,
     });
   }
   async updateProduct(req, res) {
@@ -79,7 +100,7 @@ class ProductController {
           category_id: Number(req.body.category_id),
           description: req.body.description,
           price: Number(req.body.price),
-          thumbnail: req.body.thumbnail
+          thumbnail: req.body.thumbnail,
         })
         .then(() => {
           res.redirect("/product");

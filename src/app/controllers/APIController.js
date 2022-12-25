@@ -7,6 +7,7 @@ const ProductImage = require("../models/ProductImage");
 const Property = require("../models/Property");
 const Payment = require("../models/Payment");
 const PaymentDetail = require("../models/PaymentDetail");
+const ProductView = require("../models/ProductView");
 
 class APIController {
   async getAllCategory(req, res) {
@@ -75,8 +76,9 @@ class APIController {
       .select("users.*")
       .innerJoin("user_roles", "users.id", "user_roles.user_id")
       .where("email", req.body.email)
-      .where("user_roles.role_id", 1);
-    if (user) {
+      .where("user_roles.role_id", 2);
+    console.log("------->",user);
+    if (user.length > 0) {
       const validPassword = await bcrypt.compare(
         req.body.password,
         user[0].password
@@ -202,38 +204,59 @@ class APIController {
       .where("user_id", user_id)
       .then(async (payment) => {
         const payment_detail = await PaymentDetail.query()
-            .select(
-              "payment_details.payment_id",
-              "payment_details.product_code",
-              "payment_details.quantity",
-              "payment_details.price",
-              "products.thumbnail",
-              "products.name",
-              "products.id as product_id",
-              "properties.size",
-              "properties.color"
-            )
-            .innerJoin(
-              "properties",
-              "payment_details.product_code",
-              "properties.code"
-            )
-            .innerJoin("products", "properties.product_id", "products.id")
-            .groupBy("payment_details.payment_id");
-          const hashPaymentDetail = {};
-          payment_detail.forEach((detail) => {
-            if (hashPaymentDetail[detail.payment_id]) {
-              hashPaymentDetail[detail.payment_id].push(detail);
-            } else {
-              hashPaymentDetail[detail.payment_id] = [detail];
-            }
-          });
+          .select(
+            "payment_details.payment_id",
+            "payment_details.product_code",
+            "payment_details.quantity",
+            "payment_details.price",
+            "products.thumbnail",
+            "products.name",
+            "products.id as product_id",
+            "properties.size",
+            "properties.color"
+          )
+          .innerJoin(
+            "properties",
+            "payment_details.product_code",
+            "properties.code"
+          )
+          .innerJoin("products", "properties.product_id", "products.id")
+          .groupBy("payment_details.payment_id");
+        const hashPaymentDetail = {};
+        payment_detail.forEach((detail) => {
+          if (hashPaymentDetail[detail.payment_id]) {
+            hashPaymentDetail[detail.payment_id].push(detail);
+          } else {
+            hashPaymentDetail[detail.payment_id] = [detail];
+          }
+        });
 
-          payment.forEach((item) => {
-            item.payment_details = hashPaymentDetail[item.id] ? hashPaymentDetail[item.id][0] : [];
-          });
-          return res.status(200).json(payment);
+        payment.forEach((item) => {
+          item.payment_details = hashPaymentDetail[item.id]
+            ? hashPaymentDetail[item.id][0]
+            : [];
+        });
+        return res.status(200).json(payment);
       });
+  }
+  async addProductView(req, res) {
+    const { product_id, user_id } = await req.body;
+    const productViewUser = await ProductView.query()
+      .select("*")
+      .where("user_id", user_id)
+      .where("product_id", product_id);
+    if (productViewUser.length > 0) {
+      await ProductView.query()
+        .increment("view", 1)
+        .where("product_id", product_id)
+        .where("user_id", user_id);
+    } else {
+      await ProductView.query().insert({
+        product_id,
+        user_id,
+        view: 1,
+      });
+    }
   }
 }
 module.exports = new APIController();

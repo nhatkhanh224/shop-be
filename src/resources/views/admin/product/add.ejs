@@ -63,9 +63,14 @@
                   name="category_id"
                 >
                   <% categories.forEach(function (category) { %>
-                  <option value="<%= category.id %>">
+                  <option disabled value="<%= category.id %>">
                     <%= category.name %>
                   </option>
+                    <% category.subCategory.forEach(function (category) { %>
+                    <option value="<%= category.id %>">
+                      -------<%= category.name %>
+                    </option>
+                    <% }) %>
                   <% }) %>
                 </select>
               </div>
