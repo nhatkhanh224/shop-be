@@ -90,13 +90,43 @@
                 />
               </div>
               <div class="form-group">
+                <label for="exampleInputEmail1">Product Properties </label>
+                <input
+                  type="text"
+                  class="form-control input-size"
+                  id="exampleInputEmail1"
+                  name="product_size"
+                  placeholder="Enter product size"
+                  data-role="tagsinput"
+                />
+              </div>
+              <div class="form-group">
+                <input
+                  type="text"
+                  class="form-control input-color"
+                  id="exampleInputEmail1"
+                  name="product_color"
+                  placeholder="Enter product color"
+                  data-role="tagsinput"
+                />
+              </div>
+              <div class="form-group">
+                <input
+                  type="number"
+                  class="form-control"
+                  id="exampleInputEmail1"
+                  name="product_quantity"
+                  placeholder="Enter product quantity"
+                />
+              </div>
+              <div class="form-group">
                 <label for="exampleFormControlFile1">Thumnail</label>
                 <input
                   type="file"
                   class="form-control-file"
                   name="thumbnail"
                   id="exampleFormControlFile1"
-                  accept='image/*'
+                  accept="image/*"
                 />
               </div>
               <!-- <div class="form-group">
@@ -109,44 +139,46 @@
                   placeholder="Enter thumbnail"
                 />
               </div> -->
-              <div class="form-group field_wrapper">
+              <!-- <div class="form-group field_wrapper">
                 <div>
                   <label>Properties</label>
-                  <div class="d-flex align-center ">
+                  <div class="d-flex align-center">
                     <input
-                    type="text"
-                    class="form-control"
-                    id="exampleInputEmail1"
-                    name="product_size[]"
-                    placeholder="Enter size"
-                  />
-                  <input
-                    type="text"
-                    class="form-control ml-3"
-                    id="exampleInputEmail1"
-                    name="product_color[]"
-                    placeholder="Enter color"
-                  />
-                  <input
-                    type="text"
-                    class="form-control ml-3"
-                    id="exampleInputEmail1"
-                    name="product_code[]"
-                    placeholder="Enter code"
-                  />
-                  <input
-                    type="text"
-                    class="form-control ml-3"
-                    id="exampleInputEmail1"
-                    name="product_quantity[]"
-                    placeholder="Enter quantity"
-                  />
-                  <button type="button" class="btn btn-primary ml-1 add_button">Add</button>
-                  <button type="button" class="btn btn-danger ml-1">Delete</button>
+                      type="text"
+                      class="form-control product_size"
+                      name="product_size[]"
+                      placeholder="Enter size"
+                    />
+                    <input
+                      type="text"
+                      class="form-control ml-3"
+                      name="product_color[]"
+                      placeholder="Enter color"
+                    />
+                    <input
+                      type="text"
+                      class="form-control ml-3"
+                      name="product_code[]"
+                      placeholder="Enter code"
+                    />
+                    <input
+                      type="text"
+                      class="form-control ml-3"
+                      name="product_quantity[]"
+                      placeholder="Enter quantity"
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-primary ml-1 add_button"
+                    >
+                      Add
+                    </button>
+                    <button type="button" class="btn btn-danger ml-1">
+                      Delete
+                    </button>
                   </div>
                 </div>
-                <!-- <a href="javascript:void(0);" class="add_button" title="Add field">+</a> -->
-              </div>
+              </div> -->
             </div>
             <!-- /.card-body -->
             <div class="card-footer">
@@ -162,29 +194,40 @@
   <!-- /.container-fluid -->
 </section>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script type="text/javascript">
-  $(document).ready(function(){
-      var maxField = 10; //Input fields increment limitation
-      var addButton = $('.add_button'); //Add button selector
-      var wrapper = $('.field_wrapper'); //Input field wrapper
-      var fieldHTML = '<div class="mt-2"><div class="d-flex"> <input type="text" class="form-control" id="exampleInputEmail1" name="product_size[]" placeholder="Enter size"/><input type="text" class="form-control ml-3" id="exampleInputEmail1" name="product_color[]" placeholder="Enter color"/><input type="text" class="form-control ml-3" id="exampleInputEmail1" name="product_code[]" placeholder="Enter code"/><input type="text" class="form-control ml-3" id="exampleInputEmail1" name="product_quantity[]" placeholder="Enter quantity"/><button type="button" class="btn btn-primary ml-1 add_button">Add</button><button type="button" class="btn btn-danger ml-1 remove_button">Delete</button></div></div>'; //New input field html 
-      var x = 1; //Initial field counter is 1
-      
-      //Once add button is clicked
-      $(addButton).click(function(){
-          //Check maximum number of input fields
-          if(x < maxField){ 
-              x++; //Increment field counter
-              $(wrapper).append(fieldHTML); //Add field html
-          }
-      });
-      
-      //Once remove button is clicked
-      $(wrapper).on('click', '.remove_button', function(e){
-          e.preventDefault();
-          console.log($(this).parent('div'));
-          $(this).parent('div').remove(); //Remove field html
-          x--; //Decrement field counter
-      });
+<!-- <script type="text/javascript">
+  $(document).ready(function () {
+    var maxField = 10; //Input fields increment limitation
+    var addButton = $(".add_button"); //Add button selector
+    var wrapper = $(".field_wrapper"); //Input field wrapper
+    var product_size = $(".product_size");
+    console.log(product_size);
+    var fieldHTML =
+      '<div class="mt-2"><div class="d-flex"> <input type="text" class="form-control" id="exampleInputEmail1" name="product_size[]" placeholder="Enter size"/><input type="text" class="form-control ml-3" id="exampleInputEmail1" name="product_color[]" placeholder="Enter color"/><input type="text" class="form-control ml-3" id="exampleInputEmail1" name="product_code[]" placeholder="Enter code"/><input type="text" class="form-control ml-3" id="exampleInputEmail1" name="product_quantity[]" placeholder="Enter quantity"/><button type="button" class="btn btn-primary ml-1 add_button">Add</button><button type="button" class="btn btn-danger ml-1 remove_button">Delete</button></div></div>'; //New input field html
+    var x = 1; //Initial field counter is 1
+    $('input').on('itemAdded', function(event) {
+        // $(product_size).val($('.input-size').val());
+        var string = $('.input-size').val();
+        var array = string.split(",");
+        console.log(array);
+    });
+    // for (let i = 0; i < array.length; i++) {
+    //       $(wrapper).append(fieldHTML);
+    // }
+    //Once add button is clicked
+    // $(addButton).click(function () {
+    //   //Check maximum number of input fields
+    //   if (x < maxField) {
+    //     x++; //Increment field counter
+    //     $(wrapper).append(fieldHTML); //Add field html
+    //   }
+    // });
+
+    // //Once remove button is clicked
+    // $(wrapper).on("click", ".remove_button", function (e) {
+    //   e.preventDefault();
+    //   console.log($(this).parent("div"));
+    //   $(this).parent("div").remove(); //Remove field html
+    //   x--; //Decrement field counter
+    // });
   });
-  </script>
+</script> -->

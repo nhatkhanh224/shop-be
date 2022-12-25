@@ -20,6 +20,8 @@ class ProductController {
     res.render("admin/product/add", { layout: "layouts/admin",categories: categories});
   }
   async postProduct(req, res) {
+    const product_size = req.body.product_size[1].split(",");
+    const product_color = req.body.product_color[1].split(",");
     const imagePath = path.resolve('src/public/images');
     // call class Resize
     const fileUpload = new Resize(imagePath);
@@ -37,16 +39,19 @@ class ProductController {
           thumbnail: await fileUpload.save(req.file.buffer) 
           // thumbnail: req.body.thumbnail
         });
-      for (let i = 0; i < req.body.product_size.length; i++) {
-        let valueToSave = {
-          size: req.body.product_size[i],
-          color: req.body.product_color[i],
-          code: req.body.product_code[i],
-          quantity:req.body.product_quantity[i],
-          product_id:newProduct.id
+      for (let i = 0; i < product_color.length; i++) {
+        let color = product_color[i];
+        for (let j = 0; j < product_size.length; j++) {
+          let valueToSave = {
+            size: product_size[j],
+            color: color,
+            code: ((Math.random() + 1).toString(36).substring(7)).toUpperCase(),
+            quantity:req.body.product_quantity,
+            product_id:newProduct.id
+          }
+          const newProperty = await Property.query()
+        .insert(valueToSave);
         }
-        const newProperty = await Property.query()
-      .insert(valueToSave);
       }
       res.redirect("/product");
     } catch (error) {

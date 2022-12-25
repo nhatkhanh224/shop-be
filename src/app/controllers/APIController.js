@@ -5,6 +5,8 @@ const Cart = require("../models/Cart");
 const bcrypt = require("bcrypt");
 const ProductImage = require("../models/ProductImage");
 const Property = require("../models/Property");
+const Payment = require("../models/Payment");
+const PaymentDetail = require("../models/PaymentDetail");
 
 class APIController {
   async getAllCategory(req, res) {
@@ -12,7 +14,7 @@ class APIController {
     await Category.query()
       .select("*")
       .whereNull("deleted_at")
-      .where('parent_id',category_id)
+      .where("parent_id", category_id)
       .then((category) => {
         res.status(200).json(category);
       });
@@ -27,23 +29,28 @@ class APIController {
   }
   async getProductByCategory(req, res) {
     const category_id = req.params.id;
-    const subCategory = await Category.query().select('id').where('parent_id',category_id);
+    const subCategory = await Category.query()
+      .select("id")
+      .where("parent_id", category_id);
     if (subCategory.length > 0) {
       await Product.query()
-      .select("*")
-      .whereNull("deleted_at")
-      .whereIn("category_id", subCategory.map((item)=>item.id))
-      .then((product) => {
-        res.status(200).json(product);
-      });
+        .select("*")
+        .whereNull("deleted_at")
+        .whereIn(
+          "category_id",
+          subCategory.map((item) => item.id)
+        )
+        .then((product) => {
+          res.status(200).json(product);
+        });
     } else {
       await Product.query()
-      .select("*")
-      .whereNull("deleted_at")
-      .where("category_id", category_id)
-      .then((product) => {
-        res.status(200).json(product);
-      });
+        .select("*")
+        .whereNull("deleted_at")
+        .where("category_id", category_id)
+        .then((product) => {
+          res.status(200).json(product);
+        });
     }
   }
   async getProductDetail(req, res) {
@@ -52,14 +59,14 @@ class APIController {
       .findById(product_id)
       .whereNull("deleted_at")
       .then(async (product) => {
-      const product_image = await ProductImage.query()
-        .where('product_id', product.id)
-        .whereNull('deleted_at');
-      const properties = await Property.query()
-        .where('product_id', product.id)
-        .whereNull('deleted_at');
-        product.subImages = product_image
-        product.properties= properties
+        const product_image = await ProductImage.query()
+          .where("product_id", product.id)
+          .whereNull("deleted_at");
+        const properties = await Property.query()
+          .where("product_id", product.id)
+          .whereNull("deleted_at");
+        product.subImages = product_image;
+        product.properties = properties;
         res.status(200).json(product);
       });
   }
@@ -82,7 +89,7 @@ class APIController {
   async getAccount(req, res) {
     const user_id = req.params.id;
     await User.query()
-      .select("email", "name", "address", "phone")
+      .select("id", "email", "name", "address", "phone")
       .findById(user_id)
       .whereNull("deleted_at")
       .then((user) => {
@@ -91,11 +98,17 @@ class APIController {
   }
   async addToCart(req, res) {
     const dataCart = await req.body.dataCart;
+    const product_code = await Property.query()
+      .select("code")
+      .where("product_id", dataCart.id)
+      .where("size", dataCart.size)
+      .where("color", dataCart.color)
+      .whereNull("deleted_at");
     const userCart = await Cart.query()
-      .select("product_id", "user_id", "quantity", "size")
+      .select("product_id", "user_id", "quantity", "product_code")
       .where("product_id", dataCart.id)
       .where("user_id", dataCart.user_id)
-      .where("size", dataCart.size)
+      .where("product_code", product_code[0].code)
       .whereNull("deleted_at");
     try {
       if (userCart[0]) {
@@ -105,7 +118,7 @@ class APIController {
           })
           .where("product_id", dataCart.id)
           .where("user_id", dataCart.user_id)
-          .where("size", dataCart.size)
+          .where("product_code", product_code[0].code)
           .then(() => {
             res.status(200).send("Add Success");
           });
@@ -113,8 +126,9 @@ class APIController {
         await Cart.query()
           .insert({
             product_id: dataCart.id,
-            size: dataCart.size,
+            product_code: product_code[0].code,
             quantity: dataCart.quantity,
+            price: dataCart.price,
             user_id: dataCart.user_id,
           })
           .then(() => {
@@ -138,21 +152,88 @@ class APIController {
   }
   async minusQuantityCart(req, res) {
     await Cart.query()
-          .decrement('quantity', 1)
-          .where("product_id", req.body.product_id)
-          .where("user_id", req.body.user_id)
-          .then(() => {
-            res.status(200).send("Update Success");
-          });
+      .decrement("quantity", 1)
+      .where("product_id", req.body.product_id)
+      .where("user_id", req.body.user_id)
+      .then(() => {
+        res.status(200).send("Update Success");
+      });
   }
   async plusQuantityCart(req, res) {
     await Cart.query()
-          .increment('quantity', 1)
-          .where("product_id", req.body.product_id)
-          .where("user_id", req.body.user_id)
-          .then(() => {
-            res.status(200).send("Update Success");
+      .increment("quantity", 1)
+      .where("product_id", req.body.product_id)
+      .where("user_id", req.body.user_id)
+      .then(() => {
+        res.status(200).send("Update Success");
+      });
+  }
+  async checkout(req, res) {
+    const userData = req.body.userData;
+    const total = req.body.total;
+    const cart = await Cart.query()
+      .where("user_id", userData.id)
+      .whereNull("deleted_at");
+    const payment = await Payment.query().insert({
+      user_id: userData.id,
+      address: userData.address,
+      phone: userData.phone,
+      total,
+    });
+    for (let i = 0; i < cart.length; i++) {
+      const payment_detail = await PaymentDetail.query().insert({
+        product_code: cart[i].product_code,
+        quantity: cart[i].quantity,
+        price: cart[i].price,
+        payment_id: payment.id,
+      });
+    }
+    for (let i = 0; i < cart.length; i++) {
+      await Cart.query().findById(cart[i].id).patch({
+        deleted_at: new Date(),
+      });
+    }
+    return res.status(200).send("Payment Success");
+  }
+  async getHistory(req, res) {
+    const user_id = req.params.id;
+    const payment = await Payment.query()
+      .select("*")
+      .where("user_id", user_id)
+      .then(async (payment) => {
+        const payment_detail = await PaymentDetail.query()
+            .select(
+              "payment_details.payment_id",
+              "payment_details.product_code",
+              "payment_details.quantity",
+              "payment_details.price",
+              "products.thumbnail",
+              "products.name",
+              "products.id as product_id",
+              "properties.size",
+              "properties.color"
+            )
+            .innerJoin(
+              "properties",
+              "payment_details.product_code",
+              "properties.code"
+            )
+            .innerJoin("products", "properties.product_id", "products.id")
+            .groupBy("payment_details.payment_id");
+          const hashPaymentDetail = {};
+          payment_detail.forEach((detail) => {
+            if (hashPaymentDetail[detail.payment_id]) {
+              hashPaymentDetail[detail.payment_id].push(detail);
+            } else {
+              hashPaymentDetail[detail.payment_id] = [detail];
+            }
           });
+
+          payment.forEach((item) => {
+            item.payment_details = hashPaymentDetail[item.id] ? hashPaymentDetail[item.id][0] : [];
+          });
+          return res.status(200).json(payment);
+      });
   }
 }
 module.exports = new APIController();

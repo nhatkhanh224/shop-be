@@ -9,6 +9,8 @@ router.post("/addToCart", apiController.addToCart);
 router.get("/cart/:id", apiController.getUserCart);
 router.post("/cart/plusQuantity", apiController.plusQuantityCart);
 router.post("/cart/minusQuantity", apiController.minusQuantityCart);
+router.post("/checkout", apiController.checkout);
+router.get("/getHistory/:id", apiController.getHistory);
 
 //Auth
 router.post("/login", apiController.postLogin);
