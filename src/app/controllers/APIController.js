@@ -8,6 +8,8 @@ const Property = require("../models/Property");
 const Payment = require("../models/Payment");
 const PaymentDetail = require("../models/PaymentDetail");
 const ProductView = require("../models/ProductView");
+const Recommend = require("../models/Recommend");
+const { raw } = require("objection");
 
 class APIController {
   async getAllCategory(req, res) {
@@ -77,7 +79,7 @@ class APIController {
       .innerJoin("user_roles", "users.id", "user_roles.user_id")
       .where("email", req.body.email)
       .where("user_roles.role_id", 2);
-    console.log("------->",user);
+    console.log("------->", user);
     if (user.length > 0) {
       const validPassword = await bcrypt.compare(
         req.body.password,
@@ -157,6 +159,7 @@ class APIController {
       .decrement("quantity", 1)
       .where("product_id", req.body.product_id)
       .where("user_id", req.body.user_id)
+      .where("product_code", req.body.product_code)
       .then(() => {
         res.status(200).send("Update Success");
       });
@@ -166,6 +169,19 @@ class APIController {
       .increment("quantity", 1)
       .where("product_id", req.body.product_id)
       .where("user_id", req.body.user_id)
+      .where("product_code", req.body.product_code)
+      .then(() => {
+        res.status(200).send("Update Success");
+      });
+  }
+  async deleteCart(req, res) {
+    await Cart.query()
+      .patch({
+        deleted_at: new Date(),
+      })
+      .where("product_id", req.body.product_id)
+      .where("user_id", req.body.user_id)
+      .where("product_code", req.body.product_code)
       .then(() => {
         res.status(200).send("Update Success");
       });
@@ -180,6 +196,7 @@ class APIController {
       user_id: userData.id,
       address: userData.address,
       phone: userData.phone,
+      status: "New Order",
       total,
     });
     for (let i = 0; i < cart.length; i++) {
@@ -189,19 +206,24 @@ class APIController {
         price: cart[i].price,
         payment_id: payment.id,
       });
+      const product_view = await ProductView.query()
+        .patch({ view: raw("view + 2") })
+        .where("product_id", cart[i].product_id);
     }
-    for (let i = 0; i < cart.length; i++) {
-      await Cart.query().findById(cart[i].id).patch({
+    return await Cart.query()
+      .patch({
         deleted_at: new Date(),
-      });
-    }
-    return res.status(200).send("Payment Success");
+      })
+      .where("user_id", userData.id)
+      .whereNull("deleted_at")
+      .then(res.status(200).send("Payment Success"));
   }
   async getHistory(req, res) {
     const user_id = req.params.id;
     const payment = await Payment.query()
       .select("*")
       .where("user_id", user_id)
+      .orderBy("id", "desc")
       .then(async (payment) => {
         const payment_detail = await PaymentDetail.query()
           .select(
@@ -257,6 +279,29 @@ class APIController {
         view: 1,
       });
     }
+  }
+  async updateAccount(req, res) {
+    const { userData } = await req.body;
+    await User.query()
+      .patch({
+        name: userData.name,
+        address: userData.address,
+        phone: userData.phone,
+      })
+      .where("id", userData.id)
+      .then(() => {
+        res.status(200).send("Add Success");
+      });
+  }
+  async getRecommend(req, res) {
+    const user_id = req.params.id;
+    const recommends = await Recommend.query()
+      .select("product_id")
+      .where("user_id", user_id);
+    const productIds = JSON.parse(recommends[0].product_id);
+    await Product.query().select("*").whereIn("id", productIds).then((products)=>{
+      res.status(200).send(products);
+    });
   }
 }
 module.exports = new APIController();

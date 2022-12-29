@@ -6,6 +6,7 @@ const WarehouseController = require('../app/controllers/WarehouseController');
 const SubImagesController = require('../app/controllers/SubImagesController');
 const upload = require('../app/middleware/uploadMiddleware');
 const SlideController = require('../app/controllers/SlideController');
+const OrderController = require('../app/controllers/OrderController')
 const router=express.Router();
 
 
@@ -49,5 +50,10 @@ router.post('/slide-add',upload.single('thumbnail'),SlideController.postSlide);
 router.get('/slide-edit-:id',SlideController.edit);
 router.post('/slide-update/:id',upload.single('thumbnail'),SlideController.updateSlide);
 router.post('/slide-delete/:id',SlideController.deleteSlide);
+
+// Statistic
+router.get('/order',OrderController.showOrder);
+router.get("/order-:id", OrderController.orderDetail);
+router.post('/changeStatusOrder',OrderController.changeStatusOrder);
 
 module.exports = router;
