@@ -60,7 +60,10 @@
                 </td>
                 <td><%= item.created_at %></td>
                 <td>
-                  <a href="/product-edit-<%= item.id %>" class="btn btn-primary"
+                  <a href="/order-<%= item.id %>" class="btn btn-success"
+                    >Detail</a
+                  >
+                  <!-- <a href="/product-edit-<%= item.id %>" class="btn btn-primary"
                     >Edit</a
                   >
                   <a
@@ -70,7 +73,7 @@
                     data-id="<%= item.id %>"
                     class="btn btn-danger"
                     >Delete</a
-                  >
+                  > -->
                 </td>
               </tr>
               <% }) %>

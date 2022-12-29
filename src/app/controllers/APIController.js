@@ -201,6 +201,7 @@ class APIController {
     });
     for (let i = 0; i < cart.length; i++) {
       const payment_detail = await PaymentDetail.query().insert({
+        product_id: cart[i].product_id,
         product_code: cart[i].product_code,
         quantity: cart[i].quantity,
         price: cart[i].price,
@@ -242,8 +243,8 @@ class APIController {
             "payment_details.product_code",
             "properties.code"
           )
-          .innerJoin("products", "properties.product_id", "products.id")
-          .groupBy("payment_details.payment_id");
+          .innerJoin("products", "properties.product_id", "products.id");
+          // .groupBy("payment_details.payment_id");
         const hashPaymentDetail = {};
         payment_detail.forEach((detail) => {
           if (hashPaymentDetail[detail.payment_id]) {
@@ -255,7 +256,7 @@ class APIController {
 
         payment.forEach((item) => {
           item.payment_details = hashPaymentDetail[item.id]
-            ? hashPaymentDetail[item.id][0]
+            ? hashPaymentDetail[item.id]
             : [];
         });
         return res.status(200).json(payment);
@@ -302,6 +303,9 @@ class APIController {
     await Product.query().select("*").whereIn("id", productIds).then((products)=>{
       res.status(200).send(products);
     });
+  }
+  async getTopBuy(req, res) {
+    
   }
 }
 module.exports = new APIController();

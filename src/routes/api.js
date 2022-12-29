@@ -14,6 +14,7 @@ router.post("/checkout", apiController.checkout);
 router.get("/getHistory/:id", apiController.getHistory);
 router.post("/addProductView", apiController.addProductView);
 router.get("/getRecommend/:id", apiController.getRecommend);
+router.get("/getTopBuy", apiController.getTopBuy);
 
 
 //Auth
