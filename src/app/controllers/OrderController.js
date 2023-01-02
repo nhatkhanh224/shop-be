@@ -1,5 +1,6 @@
 const Payment = require("../models/Payment");
 const PaymentDetail = require("../models/PaymentDetail");
+const Product = require("../models/Product");
 
 class OrderController {
   async showOrder(req, res) {
@@ -17,7 +18,15 @@ class OrderController {
     const payment = await PaymentDetail.query()
       .select("*")
       .where("payment_id", payment_id)
-      .whereNull("deleted_at");
+      .whereNull("deleted_at")
+      .then(async (item)=>{
+        for (let i = 0; i < item.length; i++) {
+          const element = item[i];
+          const product = await Product.query().findById(element.product_id);
+          item[i].thumbnail = product.thumbnail;
+        }
+        return item
+      })
     res.render("admin/statistic/detail", {
       layout: "layouts/admin",
       payment: payment,
@@ -34,6 +43,11 @@ class OrderController {
     } catch (error) {
       return res.status(500).send(error);
     }
+  }
+  async showCharts (req,res) {
+    res.render("admin/statistic/chart", {
+      layout: "layouts/admin",
+    });
   }
 }
 module.exports = new OrderController();
