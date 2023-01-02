@@ -23,34 +23,184 @@ class APIController {
       });
   }
   async getAllProduct(req, res) {
-    await Product.query()
-      .select("*")
-      .whereNull("deleted_at")
-      .then((product) => {
-        res.status(200).json(product);
-      });
+    let { limit, sort_by, color, price } = req.query;
+    let query = Product.query()
+      .select("products.*")
+      .limit(limit)
+      .whereNull("products.deleted_at");
+    if (sort_by) {
+      switch (sort_by) {
+        case "Newness":
+          query = query.orderBy("id", "desc");
+          break;
+        case "Top Buy":
+          query = query
+            .leftJoin(
+              "payment_details",
+              "products.id",
+              "payment_details.product_id"
+            )
+            .orderBy("payment_details.quantity", "desc");
+          break;
+        case "Low to High":
+          query = query.orderBy("price", "asc");
+          break;
+        case "High to Low":
+          query = query.orderBy("price", "desc");
+          break;
+        default:
+          break;
+      }
+    }
+    if (price) {
+      switch (price) {
+        case "0-200":
+          console.log("KHANASHUAHSUASHUSAHUHAUH");
+          query = query.whereBetween("products.price", [0, 200000]);
+          break;
+        case "200-400":
+          query = query.whereBetween("products.price", [200000, 400000]);
+          break;
+        case "400-600":
+          query = query.whereBetween("products.price", [400000, 600000]);
+          break;
+        case "Under 600":
+          query = query.where("products.price", ">=", 600000);
+          break;
+        default:
+          break;
+      }
+    }
+    if (color != "undefined" && color) {
+      query = query
+        .innerJoin("properties", "products.id", "properties.product_id")
+        .groupBy("products.id");
+      switch (color) {
+        case "black":
+          query = query.where("color", "black");
+          break;
+        case "white":
+          query = query.where("color", "white");
+          break;
+        case "blue":
+          query = query.where("color", "blue");
+          break;
+        case "green":
+          query = query.where("color", "green");
+          break;
+        case "yellow":
+          query = query.where("color", "yellow");
+          break;
+        case "brown":
+          query = query.where("color", "brown");
+          break;
+        case "red":
+          query = query.where("color", "red");
+          break;
+        default:
+          break;
+      }
+    }
+    await query.then((product) => {
+      res.status(200).json(product);
+    });
   }
   async getProductByCategory(req, res) {
+    let { limit, sort_by, color, price } = req.query;
     const category_id = req.params.id;
     const subCategory = await Category.query()
       .select("id")
       .where("parent_id", category_id);
     if (subCategory.length > 0) {
-      await Product.query()
-        .select("*")
-        .whereNull("deleted_at")
+      let query = Product.query()
+        .select("products.*")
+        .whereNull("products.deleted_at")
+        .limit(limit)
         .whereIn(
           "category_id",
           subCategory.map((item) => item.id)
-        )
-        .then((product) => {
-          res.status(200).json(product);
-        });
+        );
+      if (sort_by) {
+        switch (sort_by) {
+          case "Newness":
+            query = query.orderBy("id", "desc");
+            break;
+          case "Top Buy":
+            query = query
+              .leftJoin(
+                "payment_details",
+                "products.id",
+                "payment_details.product_id"
+              )
+              .orderBy("payment_details.quantity", "desc");
+            break;
+          case "Low to High":
+            query = query.orderBy("price", "asc");
+            break;
+          case "High to Low":
+            query = query.orderBy("price", "desc");
+            break;
+          default:
+            break;
+        }
+      }
+      if (price) {
+        switch (price) {
+          case "0-200":
+            query = query.whereBetween("products.price", [0, 200000]);
+            break;
+          case "200-400":
+            query = query.whereBetween("products.price", [200000, 400000]);
+            break;
+          case "400-600":
+            query = query.whereBetween("products.price", [400000, 600000]);
+            break;
+          case "Under 600":
+            query = query.where("products.price", ">=", 600000);
+            break;
+          default:
+            break;
+        }
+      }
+      if (color != "undefined" && color) {
+        query = query
+          .innerJoin("properties", "products.id", "properties.product_id")
+          .groupBy("products.id");
+        switch (color) {
+          case "black":
+            query = query.where("color", "black");
+            break;
+          case "white":
+            query = query.where("color", "white");
+            break;
+          case "blue":
+            query = query.where("color", "blue");
+            break;
+          case "green":
+            query = query.where("color", "green");
+            break;
+          case "yellow":
+            query = query.where("color", "yellow");
+            break;
+          case "brown":
+            query = query.where("color", "brown");
+            break;
+          case "red":
+            query = query.where("color", "red");
+            break;
+          default:
+            break;
+        }
+      }
+      await query.then((product) => {
+        res.status(200).json(product);
+      });
     } else {
       await Product.query()
         .select("*")
         .whereNull("deleted_at")
         .where("category_id", category_id)
+        .limit(limit)
         .then((product) => {
           res.status(200).json(product);
         });
@@ -244,7 +394,7 @@ class APIController {
             "properties.code"
           )
           .innerJoin("products", "properties.product_id", "products.id");
-          // .groupBy("payment_details.payment_id");
+        // .groupBy("payment_details.payment_id");
         const hashPaymentDetail = {};
         payment_detail.forEach((detail) => {
           if (hashPaymentDetail[detail.payment_id]) {
@@ -300,12 +450,13 @@ class APIController {
       .select("product_id")
       .where("user_id", user_id);
     const productIds = JSON.parse(recommends[0].product_id);
-    await Product.query().select("*").whereIn("id", productIds).then((products)=>{
-      res.status(200).send(products);
-    });
+    await Product.query()
+      .select("*")
+      .whereIn("id", productIds)
+      .then((products) => {
+        res.status(200).send(products);
+      });
   }
-  async getTopBuy(req, res) {
-    
-  }
+  async getTopBuy(req, res) {}
 }
 module.exports = new APIController();
