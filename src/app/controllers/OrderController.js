@@ -1,6 +1,7 @@
 const Payment = require("../models/Payment");
 const PaymentDetail = require("../models/PaymentDetail");
 const Product = require("../models/Product");
+const { raw } = require('objection');
 
 class OrderController {
   async showOrder(req, res) {
@@ -45,8 +46,23 @@ class OrderController {
     }
   }
   async showCharts (req,res) {
+    const dataByTime = await PaymentDetail.query()
+    .select(raw('price,MONTH(payment_details.created_at) as Month,YEAR(payment_details.created_at) as Year'))
+    .where(raw('YEAR(payment_details.created_at) = 2022'))
+    .groupBy(raw('YEAR(payment_details.created_at),MONTH(payment_details.created_at)'))
+    let array = [0,0,0,0,0,0,0,0,0,0,0,0];
+    for (let i = 1; i <= array.length; i++) {
+      for (let j = 0; j < dataByTime.length; j++) {
+        const element = dataByTime[j];
+        if (element.Month == i) {
+          array[i-1] = element.price;
+        }
+      }
+    }
+    var yValues = array;
     res.render("admin/statistic/chart", {
       layout: "layouts/admin",
+      yValues:yValues
     });
   }
 }

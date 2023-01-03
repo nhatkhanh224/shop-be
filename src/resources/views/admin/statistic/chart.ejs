@@ -1,0 +1,63 @@
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>Charts</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Charts</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <!-- left column -->
+      <div class="col-md-12">
+        <!-- Form Add Product elements -->
+        <div class="card card-primary">
+          <div class="card-header">
+            <h3 class="card-title">Monthly Revenue Statistics Charts</h3>
+          </div>
+          <canvas id="myChart" style="width:100%"></canvas>
+        </div>
+        <!-- /.card -->
+      </div>
+      <input type="hidden" name="" id="report-data" value="<%= yValues %>">
+    </div>
+    <!-- /.row -->
+  </div>
+  <!-- /.container-fluid -->
+</section>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<script>
+  let reportData = document.getElementById("report-data").value;
+  var xValues = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var yValues = reportData.split(",")
+  var barColors = ["red", "green","blue","orange","brown","yellow","black","purple","pink","gray","#4BC0C0","#328bd1"];
+  
+  new Chart("myChart", {
+    type: "bar",
+    data: {
+      labels: xValues,
+      datasets: [{
+        backgroundColor: barColors,
+        data: yValues
+      }]
+    },
+    options: {
+      legend: {display: false},
+      title: {
+        display: true,
+        text: "Monthly Revenue Statistics"
+      }
+    }
+  });
+  </script>
