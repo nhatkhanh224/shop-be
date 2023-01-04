@@ -19,6 +19,7 @@ router.get("/getTopBuy", apiController.getTopBuy);
 
 //Auth
 router.post("/login", apiController.postLogin);
+router.post("/signup", apiController.postSignup);
 router.get("/getAccount/:id", apiController.getAccount);
 router.post("/updateAccount", apiController.updateAccount);
 

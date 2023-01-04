@@ -10,6 +10,7 @@ const PaymentDetail = require("../models/PaymentDetail");
 const ProductView = require("../models/ProductView");
 const Recommend = require("../models/Recommend");
 const { raw } = require("objection");
+const UserRole = require("../models/UserRoles");
 
 class APIController {
   async getAllCategory(req, res) {
@@ -23,11 +24,14 @@ class APIController {
       });
   }
   async getAllProduct(req, res) {
-    let { limit, sort_by, color, price } = req.query;
+    let { limit, sort_by, color, price, search } = req.query;
     let query = Product.query()
       .select("products.*")
       .limit(limit)
       .whereNull("products.deleted_at");
+    if (search != "undefined" && search) {
+      query = query.where("products.name", "like", `%${search}%`);
+    }
     if (sort_by) {
       switch (sort_by) {
         case "Newness":
@@ -106,7 +110,8 @@ class APIController {
     });
   }
   async getProductByCategory(req, res) {
-    let { limit, sort_by, color, price } = req.query;
+    let { limit, sort_by, color, price, search } = req.query;
+    console.log("search", search);
     const category_id = req.params.id;
     const subCategory = await Category.query()
       .select("id")
@@ -120,6 +125,9 @@ class APIController {
           "category_id",
           subCategory.map((item) => item.id)
         );
+      if (search != "undefined" && search) {
+        query = query.where("products.name", "like", `%${search}%`);
+      }
       if (sort_by) {
         switch (sort_by) {
           case "Newness":
@@ -229,8 +237,7 @@ class APIController {
       .innerJoin("user_roles", "users.id", "user_roles.user_id")
       .where("email", req.body.email)
       .where("user_roles.role_id", 2);
-    console.log("------->", user);
-    if (user.length > 0) {
+    if (user.length != 0) {
       const validPassword = await bcrypt.compare(
         req.body.password,
         user[0].password
@@ -238,6 +245,33 @@ class APIController {
       if (validPassword) {
         res.status(200).json(user[0].id);
       }
+    }
+  }
+  async postSignup(req, res) {
+    const user = await User.query()
+      .select("*")
+      .where("email", req.body.email)
+      .whereNull("deleted_at");
+    if (user.length == 0) {
+      const user = await User.query().insert({
+        name: req.body.name,
+        email: req.body.email,
+        password: await bcrypt.hash(req.body.password, 10),
+        address: req.body.address,
+        phone: req.body.phone,
+      });
+      const user_roles = await UserRole.query()
+        .insert({
+          user_id: user.id,
+          role_id: 2,
+        })
+        .then(() => {
+          res.status(200).json(user.id);
+        });
+    } else {
+      return res.status(400).send({
+        message: "Email valid !",
+      });
     }
   }
   async getAccount(req, res) {
@@ -449,13 +483,29 @@ class APIController {
     const recommends = await Recommend.query()
       .select("product_id")
       .where("user_id", user_id);
-    const productIds = JSON.parse(recommends[0].product_id);
-    await Product.query()
-      .select("*")
-      .whereIn("id", productIds)
-      .then((products) => {
-        res.status(200).send(products);
-      });
+    if (recommends.length != 0) {
+      const productIds = JSON.parse(recommends[0].product_id);
+      await Product.query()
+        .select("*")
+        .whereIn("id", productIds)
+        .then((products) => {
+          res.status(200).send(products);
+        });
+    } else {
+      await Product.query()
+        .select("products.*")
+        .leftJoin(
+          "payment_details",
+          "products.id",
+          "payment_details.product_id"
+        )
+        .limit(5)
+        .whereNull("products.deleted_at")
+        .orderBy("payment_details.quantity", "desc")
+        .then((products) => {
+          res.status(200).send(products);
+        });
+    }
   }
   async getTopBuy(req, res) {}
 }
