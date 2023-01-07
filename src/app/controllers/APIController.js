@@ -406,45 +406,69 @@ class APIController {
   async getHistory(req, res) {
     const user_id = req.params.id;
     const payment = await Payment.query()
-      .select("*")
+      .select(
+        "payments.*",
+        "payment_details.payment_id",
+        "payment_details.product_code",
+        "payment_details.quantity",
+        "payment_details.price",
+        "products.thumbnail",
+        "products.name",
+        "products.id as product_id",
+        "properties.size",
+        "properties.color"
+      )
+      .innerJoin("payment_details", "payment_details.payment_id", "payments.id")
+      .innerJoin(
+        "properties",
+        "payment_details.product_code",
+        "properties.code"
+      )
+      .innerJoin("products", "properties.product_id", "products.id")
       .where("user_id", user_id)
-      .orderBy("id", "desc")
-      .then(async (payment) => {
-        const payment_detail = await PaymentDetail.query()
-          .select(
-            "payment_details.payment_id",
-            "payment_details.product_code",
-            "payment_details.quantity",
-            "payment_details.price",
-            "products.thumbnail",
-            "products.name",
-            "products.id as product_id",
-            "properties.size",
-            "properties.color"
-          )
-          .innerJoin(
-            "properties",
-            "payment_details.product_code",
-            "properties.code"
-          )
-          .innerJoin("products", "properties.product_id", "products.id");
-        // .groupBy("payment_details.payment_id");
-        const hashPaymentDetail = {};
-        payment_detail.forEach((detail) => {
-          if (hashPaymentDetail[detail.payment_id]) {
-            hashPaymentDetail[detail.payment_id].push(detail);
-          } else {
-            hashPaymentDetail[detail.payment_id] = [detail];
-          }
-        });
+      .orderBy("payment_details.id", "desc");
+    // const payment = await Payment.query()
+    //   .select("*")
+    //   .where("user_id", user_id)
+    //   .orderBy("id", "desc")
+    //   .then(async (payment) => {
+    //     const payment_detail = await PaymentDetail.query()
+    //       .select(
+    //         "payment_details.payment_id",
+    //         "payment_details.product_code",
+    //         "payment_details.quantity",
+    //         "payment_details.price",
+    //         "products.thumbnail",
+    //         "products.name",
+    //         "products.id as product_id",
+    //         "properties.size",
+    //         "properties.color"
+    //       )
+    //       .innerJoin(
+    //         "properties",
+    //         "payment_details.product_code",
+    //         "properties.code"
+    //       )
+    //       .innerJoin("products", "properties.product_id", "products.id");
+    //     // .groupBy("payment_details.payment_id");
+    //     console.log("---->",payment_detail);
+    //     const hashPaymentDetail = {};
+    //     payment_detail.forEach((detail) => {
+    //       if (hashPaymentDetail[detail.payment_id]) {
+    //         hashPaymentDetail[detail.payment_id].push(detail);
+    //       } else {
+    //         hashPaymentDetail[detail.payment_id] = [detail];
+    //       }
+    //     });
 
-        payment.forEach((item) => {
-          item.payment_details = hashPaymentDetail[item.id]
-            ? hashPaymentDetail[item.id]
-            : [];
-        });
-        return res.status(200).json(payment);
-      });
+    //     payment.forEach((item) => {
+    //       item.payment_details = hashPaymentDetail[item.id]
+    //         ? hashPaymentDetail[item.id]
+    //         : [];
+    //     });
+    //     return res.status(200).json(payment);
+    //   });
+    return res.status(200).json(payment);
   }
   async addProductView(req, res) {
     const { product_id, user_id } = await req.body;
