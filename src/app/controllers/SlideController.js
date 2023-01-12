@@ -24,7 +24,9 @@ class SlideController {
     try {
       const newSlide = await Slide.query()
         .insert({
-          thumbnail: await fileUpload.save(req.file.buffer) 
+          thumbnail: await fileUpload.save(req.file.buffer),
+          main_title: req.body.main_title,
+          sub_title: req.body.sub_title
         });
       res.redirect("/slide");
     } catch (error) {
@@ -50,7 +52,9 @@ class SlideController {
       await Slide.query()
         .findById(slide_id)
         .patch({
-          thumbnail: await fileUpload.save(req.file.buffer) 
+          thumbnail: await fileUpload.save(req.file.buffer),
+          main_title: req.body.main_title,
+          sub_title: req.body.sub_title 
         })
         .then(() => {
           res.redirect("/slide");

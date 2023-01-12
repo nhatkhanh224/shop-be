@@ -11,6 +11,8 @@ const ProductView = require("../models/ProductView");
 const Recommend = require("../models/Recommend");
 const { raw } = require("objection");
 const UserRole = require("../models/UserRoles");
+const Rating = require("../models/Rating");
+const Slide = require("../models/Slide");
 
 class APIController {
   async getAllCategory(req, res) {
@@ -28,7 +30,8 @@ class APIController {
     let query = Product.query()
       .select("products.*")
       .limit(limit)
-      .whereNull("products.deleted_at");
+      .whereNull("products.deleted_at")
+      .orderBy('products.id','desc');
     if (search != "undefined" && search) {
       query = query.where("products.name", "like", `%${search}%`);
     }
@@ -121,6 +124,7 @@ class APIController {
         .select("products.*")
         .whereNull("products.deleted_at")
         .limit(limit)
+        .orderBy('products.id','desc')
         .whereIn(
           "category_id",
           subCategory.map((item) => item.id)
@@ -209,6 +213,7 @@ class APIController {
         .whereNull("deleted_at")
         .where("category_id", category_id)
         .limit(limit)
+        .orderBy('products.id','desc')
         .then((product) => {
           res.status(200).json(product);
         });
@@ -425,8 +430,26 @@ class APIController {
         "properties.code"
       )
       .innerJoin("products", "properties.product_id", "products.id")
-      .where("user_id", user_id)
-      .orderBy("payment_details.id", "desc");
+      .where("payments.user_id", user_id)
+      .orderBy("payment_details.id", "desc")
+      .then(async (payment) => {
+        const rating = await Rating.query()
+          .select("rating_products.*")
+          .where("rating_products.user_id", user_id)
+        const hashRating = {};
+        rating.forEach((rating) => {
+          if (hashRating[rating.product_id]) {
+            hashRating[rating.product_id].push(rating);
+          } else {
+            hashRating[rating.product_id] = [rating];
+          }
+        });
+        console.log(hashRating);
+        payment.forEach((item) => {
+          item.rating = hashRating[item.product_id] ? hashRating[item.product_id] : [];
+        });
+        return payment;
+      });
     // const payment = await Payment.query()
     //   .select("*")
     //   .where("user_id", user_id)
@@ -532,5 +555,26 @@ class APIController {
     }
   }
   async getTopBuy(req, res) {}
+  async rating(req, res) {
+    const { user_id, product_id, rating } = await req.body;
+    await Rating.query()
+      .insert({
+        user_id,
+        product_id,
+        rating,
+      })
+      .then(() => {
+        res.status(200).send("Rating Success");
+      });
+  }
+  
+  async getHomeSlides(req, res) {
+    await Slide.query()
+      .select("*")
+      .whereNull("deleted_at")
+      .then((slide) => {
+        res.status(200).json(slide);
+      });
+  }
 }
 module.exports = new APIController();

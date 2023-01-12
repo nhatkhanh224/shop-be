@@ -85,4 +85,6 @@ router.get(
 router.post("/changeStatusOrder", OrderController.changeStatusOrder);
 router.get("/charts", authMiddleware.requireAuth, OrderController.showCharts);
 
+router.post("/rating-test", AdminController.ratingTest);
+
 module.exports = router;
