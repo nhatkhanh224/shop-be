@@ -17,6 +17,7 @@ router.get("/getRecommend/:id", apiController.getRecommend);
 router.get("/getTopBuy", apiController.getTopBuy);
 router.post("/rating", apiController.rating);
 router.get("/homeSlide", apiController.getHomeSlides);
+router.post("/checkCoupon", apiController.checkCoupon);
 
 
 //Auth

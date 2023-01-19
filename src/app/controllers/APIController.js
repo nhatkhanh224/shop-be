@@ -13,6 +13,7 @@ const { raw } = require("objection");
 const UserRole = require("../models/UserRoles");
 const Rating = require("../models/Rating");
 const Slide = require("../models/Slide");
+const Coupon = require("../models/Coupon");
 
 class APIController {
   async getAllCategory(req, res) {
@@ -376,8 +377,7 @@ class APIController {
       });
   }
   async checkout(req, res) {
-    const userData = req.body.userData;
-    const total = req.body.total;
+    const {userData,total,discount_id} = req.body;
     const cart = await Cart.query()
       .where("user_id", userData.id)
       .whereNull("deleted_at");
@@ -387,6 +387,7 @@ class APIController {
       phone: userData.phone,
       status: "New Order",
       total,
+      discount_id
     });
     for (let i = 0; i < cart.length; i++) {
       const payment_detail = await PaymentDetail.query().insert({
@@ -546,7 +547,7 @@ class APIController {
           "products.id",
           "payment_details.product_id"
         )
-        .limit(5)
+        .limit(12)
         .whereNull("products.deleted_at")
         .orderBy("payment_details.quantity", "desc")
         .then((products) => {
@@ -575,6 +576,20 @@ class APIController {
       .then((slide) => {
         res.status(200).json(slide);
       });
+  }
+  async checkCoupon (req,res) {
+    const coupon = await Coupon.query().select("*")
+    .where("name",req.body.coupon)
+    .whereNull("deleted_at")
+    console.log(coupon);
+    let currentDate = new Date();
+    let validDate = new Date(coupon[0].duration_date)
+    if (coupon && currentDate <= validDate) {
+      res.status(200).json(coupon);
+    } else {
+      res.status(500).send("Coupon Invalid");
+    }
+    
   }
 }
 module.exports = new APIController();

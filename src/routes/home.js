@@ -85,6 +85,7 @@ router.get(
 router.post("/changeStatusOrder", OrderController.changeStatusOrder);
 router.get("/charts", authMiddleware.requireAuth, OrderController.showCharts);
 
-router.post("/rating-test", AdminController.ratingTest);
+router.get("/recommend", AdminController.recommend);
+router.post("/rating-test", AdminController.readFileCsv);
 
 module.exports = router;

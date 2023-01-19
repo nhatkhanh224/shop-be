@@ -2,7 +2,12 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const e = require("express");
 const Rating = require("../models/Rating");
+const Recommend = require("../models/Recommend");
 const UserRole = require("../models/UserRoles");
+const fs = require("fs");
+const csv = require("csv-parser");
+const path = require("path");
+
 class AdminController {
   index(req, res) {
     res.render("admin/homepage", { layout: "layouts/admin" });
@@ -50,23 +55,44 @@ class AdminController {
     //     })
     //   }
     // }
-
     //    ADD USER
-    for (let i = 0; i < 240; i++) {
-      const user = await User.query().insert({
-        name: 'Test Rinn',
-        email: `rin+${i}@gmail.com`,
-        password: await bcrypt.hash('123456', 10),
-        address: '25 Kim Đồng - Gio Linh - Quảng Trị',
-        phone: '0914170417',
-      });
-      const user_roles = await UserRole.query()
-      .insert({
-        user_id: user.id,
-        role_id: 2,
+    // for (let i = 0; i < 240; i++) {
+    //   const user = await User.query().insert({
+    //     name: 'Test Rinn',
+    //     email: `rin+${i}@gmail.com`,
+    //     password: await bcrypt.hash('123456', 10),
+    //     address: '25 Kim Đồng - Gio Linh - Quảng Trị',
+    //     phone: '0914170417',
+    //   });
+    //   const user_roles = await UserRole.query()
+    //   .insert({
+    //     user_id: user.id,
+    //     role_id: 2,
+    //   })
+    // }
+    // res.redirect("/");
+  }
+  recommend(req, res) {
+    res.render("admin/recommend/index", {
+      layout: "layouts/admin",
+    });
+  }
+  async readFileCsv(req, res) {
+    const csvPath = path.resolve("src/public/recommend_rating.csv");
+    let results = [];
+    fs.createReadStream(csvPath)
+      .pipe(csv())
+      .on("data", (data) => results.push(data))
+      .on("end", async () => {
+        for (let i = 0; i < results.length; i++) {
+          const element = results[i];
+          await Recommend.query().insert({
+            user_id: element.userid,
+            product_id: element.productid,
+          });
+        }
+        res.redirect("/");
       })
-    }
-    res.redirect("/");
   }
 }
 module.exports = new AdminController();
