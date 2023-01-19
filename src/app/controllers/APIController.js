@@ -377,7 +377,7 @@ class APIController {
       });
   }
   async checkout(req, res) {
-    const {userData,total,discount_id} = req.body;
+    const {userData,total,discount_id,method,transaction_id} = req.body;
     const cart = await Cart.query()
       .where("user_id", userData.id)
       .whereNull("deleted_at");
@@ -387,7 +387,9 @@ class APIController {
       phone: userData.phone,
       status: "New Order",
       total,
-      discount_id
+      discount_id,
+      method,
+      transaction_id
     });
     for (let i = 0; i < cart.length; i++) {
       const payment_detail = await PaymentDetail.query().insert({
