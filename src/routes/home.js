@@ -9,6 +9,8 @@ const SlideController = require("../app/controllers/SlideController");
 const OrderController = require("../app/controllers/OrderController");
 const router = express.Router();
 const authMiddleware = require("../app/middleware/AuthMiddleware");
+const CouponController = require("../app/controllers/CouponController");
+const UserController = require("../app/controllers/UserController");
 
 router.get("/", authMiddleware.requireAuth, AdminController.index);
 router.get("/login", AdminController.login);
@@ -85,7 +87,17 @@ router.get(
 router.post("/changeStatusOrder", OrderController.changeStatusOrder);
 router.get("/charts", authMiddleware.requireAuth, OrderController.showCharts);
 
+//Coupon
+router.get("/coupon", CouponController.show);
+router.get("/coupon-add", CouponController.add);
+router.post("/coupon-add", CouponController.postCoupon);
+router.get("/coupon-edit-:id", CouponController.edit);
+router.post("/coupon-update/:id", CouponController.updateCoupon);
+router.post("/coupon-delete/:id", CouponController.deleteCoupon);
+
 router.get("/recommend", AdminController.recommend);
 router.post("/rating-test", AdminController.readFileCsv);
+
+router.get("/users", UserController.show);
 
 module.exports = router;

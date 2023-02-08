@@ -1,0 +1,81 @@
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>Form Add Coupon</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Form Add Coupon</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <!-- left column -->
+      <div class="col-md-6">
+        <!-- Form Add Coupon elements -->
+        <div class="card card-primary">
+          <div class="card-header">
+            <h3 class="card-title">Quick Example</h3>
+          </div>
+          <!-- /.card-header -->
+          <!-- form start -->
+          <form
+            role="form"
+            method="POST"
+            action="/coupon-add"
+          >
+            <div class="card-body">
+              <div class="form-group">
+                <label for="exampleInputEmail1">Name </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="name"
+                  placeholder="Enter coupon name"
+                />
+              </div>
+              <div class="form-group">
+                <label for="exampleFormControlSelect1">Coupon Type</label>
+                <select class="form-control" id="exampleFormControlSelect1" name="type">
+                  <option>Percent</option>
+                  <option>Money</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="exampleInputEmail1">Coupon Value </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  name="value"
+                  placeholder="Enter coupon value"
+                />
+              </div>
+              <div class="form-group">
+                <label for="exampleInputEmail1">Coupon Duration </label>
+                <input type="date" name="duration_date">
+              </div>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer">
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </div>
+        <!-- /.card -->
+      </div>
+    </div>
+    <!-- /.row -->
+  </div>
+  <!-- /.container-fluid -->
+</section>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+

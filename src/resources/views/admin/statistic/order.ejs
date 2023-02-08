@@ -32,6 +32,8 @@
                 <th>Order ID</th>
                 <th>Total</th>
                 <th>Status</th>
+                <th>Method</th>
+                <th>Transaction ID</th>
                 <th>Created At</th>
                 <th>Options</th>
               </tr>
@@ -58,7 +60,9 @@
                       <option value="Delivered" data-id="<%= item.id %>">Delivered</option>
                     </select>
                 </td>
-                <td><%= item.created_at %></td>
+                <td><%= item.method %></td>
+                <td><%= item.transaction_id %></td>
+                <td><%= new Date(item.created_at).toISOString().split('T')[0] %></td>
                 <td>
                   <a href="/order-<%= item.id %>" class="btn btn-success"
                     >Detail</a
@@ -84,6 +88,8 @@
                 <th>Order ID</th>
                 <th>Total</th>
                 <th>Status</th>
+                <th>Method</th>
+                <th>Transaction ID</th>
                 <th>Created At</th>
                 <th>Options</th>
               </tr>
