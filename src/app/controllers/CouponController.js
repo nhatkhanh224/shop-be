@@ -27,39 +27,40 @@ class CouponController {
     }
   }
   async edit(req, res) {
-    const category = await Category.query().findById(req.params.id);
-    res.render("admin/category/edit", {
+    const coupon = await Coupon.query().findById(req.params.id);
+    res.render("admin/coupon/edit", {
       layout: "layouts/admin",
-      category: category,
+      coupon: coupon,
     });
   }
   async updateCoupon(req, res) {
-    const category_id = req.params.id;
+    const coupon_id = req.params.id;
     try {
-      await Category.query()
-        .findById(category_id)
+      await Coupon.query()
+        .findById(coupon_id)
         .patch({
           name: req.body.name,
-          // parent_id: req.body.parent_id,
-          description: req.body.description,
+          type: req.body.type,
+          value: req.body.value,
+          duration_date: req.body.duration_date,
         })
         .then(() => {
-          res.redirect("/category");
+          res.redirect("/coupon");
         });
     } catch (error) {
       console.log(error);
     }
   }
   async deleteCoupon(req, res) {
-    const category_id = req.params.id;
+    const coupon_id = req.params.id;
     try {
-      await Category.query()
-        .findById(category_id)
+      await Coupon.query()
+        .findById(coupon_id)
         .patch({
           deleted_at:new Date()
         })
         .then(() => {
-          res.redirect("/category");
+          res.redirect("/coupon");
         });
     } catch (error) {
       console.log(error);

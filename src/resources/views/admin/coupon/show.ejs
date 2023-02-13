@@ -51,7 +51,7 @@
                   <a
                     href="#"
                     data-toggle="modal"
-                    data-target="#deleteSlideModal"
+                    data-target="#deleteCouponModal"
                     data-id="<%= item.id %>"
                     >Delete</a
                   >
@@ -83,7 +83,7 @@
 <!-- Modal -->
 <div
   class="modal fade"
-  id="deleteSlideModal"
+  id="deleteCouponModal"
   tabindex="-1"
   role="dialog"
   aria-labelledby="exampleModalLabel"
@@ -92,7 +92,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Delete slide </h5>
+        <h5 class="modal-title" id="exampleModalLabel">Delete coupon </h5>
         <button
           type="button"
           class="close"
@@ -102,7 +102,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">Are you sure about to delete this slide ?</div>
+      <div class="modal-body">Are you sure about to delete this coupon ?</div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">
           Close
@@ -114,18 +114,18 @@
     </div>
   </div>
 </div>
-<form method="POST" name="delete-slide-form"></form>
+<form method="POST" name="delete-coupon-form"></form>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    let slideId;
-    let deleteForm = document.forms["delete-slide-form"];
-    $("#deleteSlideModal").on("show.bs.modal", function (event) {
+    let couponId;
+    let deleteForm = document.forms["delete-coupon-form"];
+    $("#deleteCouponModal").on("show.bs.modal", function (event) {
       var button = $(event.relatedTarget);
-      slideId = button.data("id"); //Get id
+      couponId = button.data("id"); //Get id
     });
     var btnDeleteSlide = document.getElementById("btn-delete-slide");
     btnDeleteSlide.onclick = function (event) {
-      deleteForm.action = "/slide-delete/" + slideId;
+      deleteForm.action = "/coupon-delete/" + couponId;
       deleteForm.submit();
     };
   });

@@ -99,5 +99,8 @@ router.get("/recommend", AdminController.recommend);
 router.post("/rating-test", AdminController.readFileCsv);
 
 router.get("/users", UserController.show);
+router.get("/user-edit-:id", UserController.edit);
+router.post("/user-update/:id", UserController.updateUser);
+router.post("/user-delete/:id", CouponController.deleteCoupon);
 
 module.exports = router;
