@@ -85,7 +85,7 @@ router.get(
   OrderController.orderDetail
 );
 router.post("/changeStatusOrder", OrderController.changeStatusOrder);
-router.get("/charts", authMiddleware.requireAuth, OrderController.showCharts);
+router.get("/charts-:year", authMiddleware.requireAuth, OrderController.showCharts);
 
 //Coupon
 router.get("/coupon", CouponController.show);
@@ -96,7 +96,9 @@ router.post("/coupon-update/:id", CouponController.updateCoupon);
 router.post("/coupon-delete/:id", CouponController.deleteCoupon);
 
 router.get("/recommend", AdminController.recommend);
+router.get("/recommend-export", AdminController.recommendExport);
 router.post("/rating-test", AdminController.readFileCsv);
+router.post("/rating-export", AdminController.renderRatingCSV);
 
 router.get("/users", UserController.show);
 router.get("/user-edit-:id", UserController.edit);

@@ -542,16 +542,13 @@ class APIController {
           res.status(200).send(products);
         });
     } else {
+      const recommends = await Recommend.query()
+      .select("product_id")
+      .where("user_id", 1);
+      const productIds = JSON.parse(recommends[0].product_id);
       await Product.query()
-        .select("products.*")
-        .leftJoin(
-          "payment_details",
-          "products.id",
-          "payment_details.product_id"
-        )
-        .limit(12)
-        .whereNull("products.deleted_at")
-        .orderBy("payment_details.quantity", "desc")
+        .select("*")
+        .whereIn("id", productIds)
         .then((products) => {
           res.status(200).send(products);
         });

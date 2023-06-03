@@ -25,6 +25,9 @@
         </div>
         <!-- /.card-header -->
         <div class="card-body">
+          <h3>Revenue : <%= new Intl.NumberFormat('vi-VN', { style: 'currency',
+            currency: 'VND', maximumFractionDigits: 9}).format(orders2.total)
+            %></h3>
           <table id="example2" class="table table-bordered table-hover">
             <thead>
               <tr>
